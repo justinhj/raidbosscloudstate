@@ -1,0 +1,46 @@
+{
+  "name": "my-service",
+  "version": "0.1.0",
+  "description": "Sample CloudState event sourced  application",
+  "keywords": [
+    "serverless",
+    "cloudstate",
+    "event-sourcing"
+  ],
+  "homepage": "https://github.com/cloudstateio/cloudstate",
+  "bugs": {
+    "url": "https://github.com/cloudstateio/cloudstate/issues"
+  },
+  "license": "Apache-2.0",
+  "author": {
+    "name": "James Roper",
+    "email": "jroper2@gmail.com",
+    "url": "https://jazzy.id.au"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lightbend/cloudstate-samples",
+    "directory": "/templates/eventsource"
+  },
+  "//": "https://npm.community/t/npm-install-does-not-install-transitive-dependencies-of-local-dependency/2264",
+  "dependencies": {
+    "@grpc/proto-loader": "^0.1.0",
+    "google-protobuf": "^3.0.0",
+    "grpc": "^1.20.2",
+    "cloudstate": "0.0.3"
+  },
+  "devDependencies": {
+    "chai": "4.2.0",
+    "mocha": "^6.1.4"
+  },
+  "scripts": {
+    "test": "mocha",
+    "prestart": "compile-descriptor ./myservice.proto",
+    "pretest": "compile-descriptor ./myservice.proto",
+    "start": "node index.js",
+    "start-no-prestart": "node index.js",
+    "dockerbuild": "docker build -f ./Dockerfile -t ${DOCKER_PUBLISH_TO:-cloudstateio}/my-service:latest ../..",
+    "dockerpush": "docker push ${DOCKER_PUBLISH_TO:-cloudstateio}/my-service:latest",
+    "dockerbuildpush": "npm run dockerbuild && npm run dockerpush"
+  }
+}

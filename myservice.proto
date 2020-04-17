@@ -1,0 +1,92 @@
+// This is the public API offered by the shopping cart entity.
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "cloudstate/entity_key.proto";
+import "cloudstate/eventing.proto";
+import "google/api/annotations.proto";
+
+// Change this package name to be your organization and project name.
+package com.example.myservice;
+
+// A command to Add an Item.  
+// Note the use of the cloudstate.entity_key field option extension, 
+// this is used to indicate which field(s) form the entity key, which 
+// the Akka backend will use to identify entities and shard them
+// (in this example  `user_id` ).
+// is what will be used as the unique entity key.  The other fields 
+// contain data that we want to store in that entity.
+message MyAddItem {
+    string user_id = 1 [(.cloudstate.entity_key) = true];
+    string id = 2;
+    string name = 3;
+    int32 quantity = 4;
+}
+
+// A command to Remove an Item.  The first property `user_id` 
+// is what will be used to form the entity key.  The second field 
+// is used to lookup the item that we want to remove.
+message MyRemoveItem {
+    string user_id = 1 [(.cloudstate.entity_key) = true];
+    string id = 2;
+}
+
+
+// A command to Get the currect state of an entity.
+// We again pass in the entity key in order to be able to lookup 
+// our entity.
+message MyGetState {
+    string user_id = 1 [(.cloudstate.entity_key) = true];
+}
+
+// This type is our data Item that we store in our state.
+// Change this item to reflect your own model.
+message MyItem {
+    string id = 1;
+    string name = 2;
+    int32 quantity = 3;
+}
+
+// The enitty state is represented as a list of the above data items.
+// You should edit this so that it reflects your own state.
+message MyState {
+    repeated MyItem items = 1;
+}
+
+// This is the actual service definition.  We will use these methods 
+// to handle data coming in and going out of our service.  In an event
+// sourced service like this one, calls usually reflect the commands that 
+// we have defined above. 
+service MyService {
+    // The call to add an item to our entity.  Additionally we provide a 
+    // named http endpoint.  To see how you might use this endpoint you 
+    // must first understand the route.yaml file in the deploy folder.
+    rpc AddItem(MyAddItem) returns (google.protobuf.Empty) {
+        // option (google.api.http) specifies that this method is a gRPC HTTP mapping annotation
+        // for more info see: https://cloud.google.com/endpoints/docs/grpc/transcoding
+        option (google.api.http) = {
+            post: "/state/{user_id}/items/add",
+            body: "*",
+        };        
+    }
+
+    // Call to remove an item from our entity.
+    rpc RemoveItem(MyRemoveItem) returns (google.protobuf.Empty) {
+        // option (google.api.http) specifies that this method is a gRPC HTTP mapping annotation
+        // for more info see: https://cloud.google.com/endpoints/docs/grpc/transcoding
+        option (google.api.http).post = "/state/{user_id}/items/{id}/remove";
+    }
+
+    // Call to return the state from an entity.
+    rpc GetState(MyGetState) returns (MyState) {
+        // option (google.api.http) specifies that this method is a gRPC HTTP mapping annotation
+        // for more info see: https://cloud.google.com/endpoints/docs/grpc/transcoding
+        option (google.api.http) = {
+          get: "/state/{user_id}",
+          additional_bindings: {
+            get: "/state/{user_id}/items",
+            response_body: "items"
+          }
+        };
+    }
+}

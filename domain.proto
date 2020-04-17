@@ -1,0 +1,34 @@
+// These are the messages that get persisted - the events, plus the current state (Cart) for snapshots.
+syntax = "proto3";
+
+// change this to reflect your organization and project namespace
+package com.example.myservice.persistence;
+
+option go_package = "persistence";
+
+// Change this to be your data model. 
+message MyItem {
+    string id = 1;
+    string name = 2;
+    int32 quantity = 3;
+}
+
+// The item added event.
+// You should change this to be an event that makes sense for your model.
+// Events are what get stored in the statefulstore event log
+message MyItemAdded {
+    MyItem item = 1;
+}
+
+// The item removed event.
+// You should change this to be an event that makes sense for your model.
+// Events are what get stored in the statefulstore event log
+message MyItemRemoved {
+    string id = 1;
+}
+
+// This is the state for a user.
+// It countains a list of items
+message MyState {
+    repeated MyItem items = 1;
+}

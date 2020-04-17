@@ -1,0 +1,14 @@
+# Route for friends app
+apiVersion: cloudstate.io/v1alpha1
+kind: Route
+metadata:
+  name: my-routes
+spec:
+  http:
+  - name: my-routes
+    match:
+    - uri:
+        prefix: /
+    route:
+      service: my-service
+
