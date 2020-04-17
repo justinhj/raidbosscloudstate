@@ -35,8 +35,8 @@
   },
   "scripts": {
     "test": "mocha",
-    "prestart": "compile-descriptor ./myservice.proto",
-    "pretest": "compile-descriptor ./myservice.proto",
+    "prestart": "compile-descriptor ./raidbossservice.proto",
+    "pretest": "compile-descriptor ./raidbossservice.proto",
     "start": "node index.js",
     "start-no-prestart": "node index.js",
     "dockerbuild": "docker build -f ./Dockerfile -t ${DOCKER_PUBLISH_TO:-cloudstateio}/my-service:latest ../..",

@@ -2,7 +2,7 @@
 syntax = "proto3";
 
 // change this to reflect your organization and project namespace
-package com.example.myservice.persistence;
+package org.justinhj.raidbossservice.persistence;
 
 option go_package = "persistence";
 

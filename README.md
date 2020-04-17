@@ -1,3 +1,5 @@
+# Raidboss cloudstate
+A massively multiplayer raid boss implementation (A shared monster that thousands of players can attack. Includes leaderboards to track damager).
 
 ## Layout
 * `myservice.proto` - This is the gRPC interface that is exposed to the rest of the world. The user function doesn't implement this directly, it passes it to the Akka backend, that implements it, and then proxies all requests to the user function through an event sourcing specific protocol. Note the use of the `cloudstate.entity_key` field option extension, this is used to indicate which field(s) form the entity key, which the Akka backend will use to identify entities and shard them.
