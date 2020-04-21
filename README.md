@@ -21,7 +21,7 @@ You want to make changes to the following files:
 * Edit the `index.js` file, again renaming the file and contents to your liking.
    * Follow the comments in these files as a guide to help you edit.
 
-## Building 
+## Building
 ```
 npm install
 npm run prestart
@@ -77,12 +77,12 @@ NAME             REPLICAS   STATUS
 my-service       1          Running
 ```
 
-To redeploy a new image to the cluster you must delete and then redeploy using the yaml file.  
+To redeploy a new image to the cluster you must delete and then redeploy using the yaml file.
 For example if we updated the my-service docker image we would do the following.
 ````
 $ kubectl delete statefulservice my-service -n <project-name>
 statefulservice.cloudstate.io "my-service" deleted
-$ kubectl apply -f my-service.yaml -n <project-name>    
+$ kubectl apply -f my-service.yaml -n <project-name>
 statefulservice.cloudstate.io/my-service created
 ````
 
@@ -102,7 +102,7 @@ spec:
     - uri:
         prefix: /
     route:
-      service: my-service     
+      service: my-service
 ```
 
 Add these routes by performing
@@ -113,12 +113,29 @@ kubectl apply -f routes.yaml -n <project-name>
 The web url that will resolve the above route to the default route:
 `https://<project-name>.us-east1.apps.lbcs.dev/`
 
-NOTE: utilities like `grpcurl` use service reflection on the default route `/`.  What this means is that you 
+NOTE: utilities like `grpcurl` use service reflection on the default route `/`.  What this means is that you
 can only use `grpcurl` with the service on the default route.
 
 ## Testing
-You can now use `curl` in combination with the `option (google.api.http)` that you defined in your `myservice.proto`.  For more information 
+You can now use `curl` in combination with the `option (google.api.http)` that you defined in your `myservice.proto`.  For more information
 on how json is encoded to protobuf see: [https://cloud.google.com/endpoints/docs/grpc/transcoding](https://cloud.google.com/endpoints/docs/grpc/transcoding).
+
+### Building and launching the service locally
+
+Uses Docker rather than Kubernetes
+
+`docker build . -t [your docker registry account]/raidboss-service:latest`
+
+OR
+
+`DOCKER_PUBLISH_TO=[your docker registry account] npm run dockerbuild`
+
+`docker run -it --rm --network container:cloudstate --name raidboss -e DEBUG="cloudstate*" [your docker registry account]/raidboss-service`
+
+### Creating a boss
+```
+curl -v -H "Content-Type:application/json"  https://.us-east1.apps.lbcs.dev/state/example-boss-instance-1/raidbosses/create -d '{"boss_instance_id":"example-boss-instance-1", "boss_def_id":"angry-ben-1, "group_id:yoppworks-1"}'
+```
 
 ### Adding an item
 ```

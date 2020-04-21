@@ -2,14 +2,14 @@
 apiVersion: cloudstate.io/v1alpha1
 kind: StatefulService
 metadata:
-  name: my-service
+  name: raidboss-service
 spec:
   # Datastore configuration
   storeConfig:
-    database: my-database
+    database: raidboss-database
     statefulStore:
       # Name of a deployed Datastore to use.
-      name: my-postgres
+      name: raidboss-postgres
   containers:
-    - image: coreyauger/my-service:latest
-      name: my-service
+    - image: justinhj/raidboss-service:latest
+      name: raidboss-service

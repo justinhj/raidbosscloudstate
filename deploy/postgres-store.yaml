@@ -4,7 +4,7 @@
 apiVersion: cloudstate.io/v1alpha1
 kind: StatefulStore
 metadata:
-  name: my-postgres
+  name: raidboss-postgres
 spec:
   # Postgres store.  Using default values
   postgres: {}

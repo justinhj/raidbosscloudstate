@@ -2,13 +2,12 @@
 apiVersion: cloudstate.io/v1alpha1
 kind: Route
 metadata:
-  name: my-routes
+  name: raidboss-routes
 spec:
   http:
-  - name: my-routes
+  - name: raidboss-routes
     match:
     - uri:
         prefix: /
     route:
-      service: my-service
-
+      service: raidboss-service

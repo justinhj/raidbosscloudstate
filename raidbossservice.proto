@@ -5,21 +5,19 @@ syntax = "proto3";
 import "cloudstate/entity_key.proto";
 import "cloudstate/eventing.proto";
 import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
 
 package org.justinhj.raidbossservice;
 
 // A command to create (summon) a raid boss
-// Note the use of the cloudstate.entity_key field option extension, 
-// this is used to indicate which field(s) form the entity key, which 
+// Note the use of the cloudstate.entity_key field option extension,
+// this is used to indicate which field(s) form the entity key, which
 // the Akka backend will use to identify entities and shard them
 // (in this example  `boss_instance_id` ).
 
 message RaidBossCreate {
     string boss_instance_id = 1 [(.cloudstate.entity_key) = true];
-    string id = 2;
-    string name = 3;
-    int32 quantity = 4;
+    string boss_def_id = 2 ;
+    string group_id = 3 ;
 }
 
 message RaidBossView {
@@ -28,26 +26,20 @@ message RaidBossView {
 
 // Leaderboard entry
 message LeaderboardEntry {
-  string playerId = 1 ;
+  string player_id = 1 ;
   int64 score = 2 ;
 }
 
 // Raidboss instance
 message RaidBossInstance {
-  string instanceId = 1 ;
-  string bossDefId = 2 ;
+  string boss_instance_id = 1 ;
+  string boss_def_id = 2 ;
   int64 health = 3 ;
   repeated LeaderboardEntry leaderboard = 4 ;
-  google.protobuf.Timestamp created = 5 ;
-  google.protobuf.Timestamp updated = 6 ;
-  string groupId = 7 ;
-  string killedBy = 8 ;
-}
-
-// The enitty state is represented as a list of the above data items.
-// You should edit this so that it reflects your own state.
-message RaidBossState {
-    RaidBossInstance instance = 1;
+  int64 created = 5 ;
+  int64 updated = 6 ;
+  string group_id = 7 ;
+  string killed_by = 8 ;
 }
 
 // Service definition
@@ -58,7 +50,7 @@ service RaidBossService {
     // option (google.api.http) specifies that this method is a gRPC HTTP mapping annotation
     // for more info see: https://cloud.google.com/endpoints/docs/grpc/transcoding
     option (google.api.http) = {
-      post: "/state/{raidboss_instance_id}/raidbosses/create",
+      post: "/raidboss/create",
       body: "*",
     };
   }
@@ -68,7 +60,7 @@ service RaidBossService {
     // option (google.api.http) specifies that this method is a gRPC HTTP mapping annotation
     // for more info see: https://cloud.google.com/endpoints/docs/grpc/transcoding
     option (google.api.http) = {
-      get: "/state/{raidboss_instance_id}"
+      get: "/raidboss/get/{boss_instance_id}"
     };
   }
 }

@@ -1,11 +1,13 @@
 {
-  "name": "my-service",
+  "name": "raidboss-service",
   "version": "0.1.0",
-  "description": "Sample CloudState event sourced  application",
+  "description": "Raid boss service",
   "keywords": [
     "serverless",
     "cloudstate",
-    "event-sourcing"
+    "event-sourcing",
+    "mmo",
+    "video-games"
   ],
   "homepage": "https://github.com/cloudstateio/cloudstate",
   "bugs": {
@@ -13,9 +15,9 @@
   },
   "license": "Apache-2.0",
   "author": {
-    "name": "James Roper",
-    "email": "jroper2@gmail.com",
-    "url": "https://jazzy.id.au"
+    "name": "Justin Heyes-Jones",
+    "email": "justinhj@gmail.com",
+    "url": "https://justinhj.github.com"
   },
   "repository": {
     "type": "git",
@@ -25,9 +27,9 @@
   "//": "https://npm.community/t/npm-install-does-not-install-transitive-dependencies-of-local-dependency/2264",
   "dependencies": {
     "@grpc/proto-loader": "^0.1.0",
+    "cloudstate": "0.0.3",
     "google-protobuf": "^3.0.0",
-    "grpc": "^1.20.2",
-    "cloudstate": "0.0.3"
+    "grpc": "^1.20.2"
   },
   "devDependencies": {
     "chai": "4.2.0",
@@ -39,8 +41,9 @@
     "pretest": "compile-descriptor ./raidbossservice.proto",
     "start": "node index.js",
     "start-no-prestart": "node index.js",
-    "dockerbuild": "docker build -f ./Dockerfile -t ${DOCKER_PUBLISH_TO:-cloudstateio}/my-service:latest ../..",
-    "dockerpush": "docker push ${DOCKER_PUBLISH_TO:-cloudstateio}/my-service:latest",
+    "dockerbuild": "docker build . -t ${DOCKER_PUBLISH_TO:-cloudstateio}/raidboss-service:latest",
+    "dockerrun": "docker run -it --rm --network container:cloudstate --name raidboss -e DEBUG=\"cloudstate*\" ${DOCKER_PUBLISH_TO:-cloudstateio}/raidboss-service:latest",
+    "dockerpush": "docker push ${DOCKER_PUBLISH_TO:-cloudstateio}/raidboss-service:latest",
     "dockerbuildpush": "npm run dockerbuild && npm run dockerpush"
   }
 }
