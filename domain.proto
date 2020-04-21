@@ -27,3 +27,8 @@ message RaidBossInstance {
 message RaidBossCreated {
     RaidBossInstance instance = 1 ;
 }
+
+message RaidBossAttacked {
+  string player_id = 1 ;
+  int64 damage_inflicted = 2 ;
+}

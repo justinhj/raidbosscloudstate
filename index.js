@@ -9,7 +9,7 @@ const entity = new EventSourced(
   "org.justinhj.raidbossservice.RaidBossService",
   {
     persistenceId: "raidbossservice",
-    snapshotEvery: 5, // Usually you wouldn't snapshot this frequently, but this helps to demonstrate snapshotting
+    snapshotEvery: 5,
     includeDirs: ["./"]
   }
 );
@@ -23,6 +23,8 @@ const entity = new EventSourced(
  */
 const pkg = "org.justinhj.raidbossservice.persistence.";
 const RaidBossCreated = entity.lookupType(pkg + "RaidBossCreated");
+const RaidBossAttacked = entity.lookupType(pkg + "RaidBossAttacked");
+
 const RaidBossInstance = entity.lookupType(pkg + "RaidBossInstance");
 
 const apipkg = "org.justinhj.raidbossservice.";
@@ -54,12 +56,14 @@ entity.setBehavior(state => {
     // the gRPC service that this entity offers.
     commandHandlers: {
       CreateRaidBoss: createRaidBoss,
-      ViewRaidBoss: viewRaidBoss
+      ViewRaidBoss: viewRaidBoss,
+      AttackRaidBoss: attackRaidBoss
     },
     // Event handlers. The name of the event corresponds to the (unqualified) name of the
     // persisted protobuf message.
     eventHandlers: {
-      RaidBossCreated: raidBossCreated
+      RaidBossCreated: raidBossCreated,
+      RaidBossAttacked: raidBossAttacked
     }
   };
 });
@@ -116,6 +120,49 @@ function createRaidBoss(raidBossCreate, state, ctx) {
   }
 }
 
+/**
+ * Handler for attack raidboss command
+ */
+function attackRaidBoss(attackReq, state, ctx) {
+  if (state.created > 0) {
+    var newHealth = state.health - attackReq.damage;
+    var inflicted = attackReq.damage;
+    if(newHealth < 0) {
+      inflicted = inflicted + newHealth;
+      newHealth = 0;
+    }
+
+    var killedBy = "";
+    if(newHealth == 0) {
+      killedBy = attackReq.playerId;
+    }
+
+    // TODO leaderboard code
+
+    const raidBossAttacked = RaidBossAttacked.create({
+       playerId:  attackReq.playerId,
+       damageInflicted: inflicted
+    });
+
+    console.log("raidBossAttacked::emit event", raidBossAttacked);
+    ctx.emit(raidBossAttacked)
+
+    return APIRaidBossInstance.create({
+      bossInstanceId: state.bossInstanceId,
+      bossDefId: state.bossDefId,
+      health: newHealth,
+      leaderboard: state.leaderboard,
+      created: state.created,
+      updated: Date.now(),
+      groupId: state.groupId,
+      killedBy: killedBy
+    });
+
+  } else {
+    ctx.fail("attackRaidBoss::attacked before initialized");
+    return {};
+  }
+}
 
 /**
  * Handler for view raidboss command
@@ -131,18 +178,22 @@ function raidBossCreated(createdEvent, state) {
   return createdEvent.instance
 }
 
-// /**
-//  * Handler for item removed events.
-//  */
-// function myItemRemoved(removed, state) {
-//   // Filter the removed item from the items by id.
-//   state.items = state.items.filter(item => {
-//     return item.id !== removed.id;
-//   });
+// Event handler for attacked
 
-//   // And return the new state.
-//   return state;
-// }
+function raidBossAttacked(attackEvent, state) {
+
+  var newHealth = state.health - attackEvent.damageInflicted;
+
+  var killedBy = "";
+  if(state.health > 0 && newHealth == 0) {
+    killedBy = attackEvent.playerId;
+  }
+
+  state.health = newHealth;
+  state.killedBy = killedBy;
+
+  return state
+}
 
 // Export the entity
 module.exports = entity;

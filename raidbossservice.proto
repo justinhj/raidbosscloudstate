@@ -20,8 +20,18 @@ message RaidBossCreate {
     string group_id = 3 ;
 }
 
+// Command to simply return the boss for viewing the current state
+
 message RaidBossView {
   string boss_instance_id = 1 [(.cloudstate.entity_key) = true];
+}
+
+// Command to attack the boss
+
+message RaidBossAttack {
+  string boss_instance_id = 1 [(.cloudstate.entity_key) = true];
+  string player_id = 2 ;
+  int64 damage = 3 ;
 }
 
 // Leaderboard entry
@@ -51,7 +61,7 @@ service RaidBossService {
     // for more info see: https://cloud.google.com/endpoints/docs/grpc/transcoding
     option (google.api.http) = {
       post: "/raidboss/create",
-      body: "*",
+      body: "*"
     };
   }
 
@@ -61,6 +71,16 @@ service RaidBossService {
     // for more info see: https://cloud.google.com/endpoints/docs/grpc/transcoding
     option (google.api.http) = {
       get: "/raidboss/get/{boss_instance_id}"
+    };
+  }
+
+  // Call attack a boss and return the current state
+  rpc AttackRaidBoss(RaidBossAttack) returns (RaidBossInstance) {
+    // option (google.api.http) specifies that this method is a gRPC HTTP mapping annotation
+    // for more info see: https://cloud.google.com/endpoints/docs/grpc/transcoding
+    option (google.api.http) = {
+      post: "/raidboss/attack",
+      body: "*"
     };
   }
 }
