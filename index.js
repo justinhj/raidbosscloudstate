@@ -29,7 +29,7 @@ const RaidBossInstance = entity.lookupType(pkg + "RaidBossInstance");
 
 const apipkg = "org.justinhj.raidbossservice.";
 
-const APIRaidBossInstance = entity.lookupType(pkg + "RaidBossInstance");
+const APIRaidBossInstance = entity.lookupType(apipkg + "RaidBossInstance");
 
 /*
  * Set a callback to create the initial state. This is what is created if there is no
@@ -124,11 +124,15 @@ function createRaidBoss(raidBossCreate, state, ctx) {
  * Handler for attack raidboss command
  */
 function attackRaidBoss(attackReq, state, ctx) {
+  var damage = parseInt(attackReq.damage, 10)
+
   if (state.created > 0) {
-    var newHealth = state.health - attackReq.damage;
-    var inflicted = attackReq.damage;
+    var newHealth = parseInt(state.health, 10) - damage;
+    var inflicted = damage;
+    console.log("inflicted 1 " + inflicted + " " + typeof inflicted);
     if(newHealth < 0) {
       inflicted = inflicted + newHealth;
+      console.log("inflicted 2 " + inflicted + " " + typeof inflicted + " " + newHealth + " " + typeof newHealth);
       newHealth = 0;
     }
 

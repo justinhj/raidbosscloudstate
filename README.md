@@ -134,16 +134,16 @@ OR
 
 ### Creating a boss
 ```
-curl -v -H "Content-Type:application/json"  https://<PROJECT_NAME>/raidbosses/create -d '{"boss_instance_id":"example-boss-instance-1", "boss_def_id":"angry-ben-1, "group_id:yoppworks-1"}'
+ curl -v -H "Content-Type:application/json"  http://127.0.0.1:9000/raidboss/create -d '{"boss_instance_id":"example-boss-instance-1", "boss_def_id":"angry-ben-1", "group_id":"yoppworks-1"}'
 ```
 
 ### Attacking a boss
 
- curl -vv -H "Content-Type:application/json" 0.0.0.0:9000/raidboss/attack -d '{"boss_instance_id":"example-boss-instance-17", "player_id":"justin-91", "damage":100}'
+ curl -vv -H "Content-Type:application/json" http://127.0.0.1:9000/raidboss/attack -d '{"boss_instance_id":"example-boss-instance-1", "player_id":"justin-91", "damage":100}'
 
 ### Getting the current state of the boss
 ```
-curl -v -H 'Content-Type:application/json'  https://<PROJECT_NAME>.us-east1.apps.lbcs.dev/raidboss/view/{instance_id}
+curl -v -H 'Content-Type:application/json' http://127.0.0.1:9000/raidboss/get/example-boss-instance-1
 ```
 
 ## Maintenance notes
@@ -157,7 +157,6 @@ __This project is NOT supported under the Lightbend subscription.__
 If you find any issues with these instructions, please report them [here](https://github.com/lightbend/cloudstate-samples/pull/link_to_issue_tracker).
 
 Feel free to ping the maintainers above for code review or discussions. Pull requests are very welcome–thanks in advance!
-
 
 ### Disclaimer
 

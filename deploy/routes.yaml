@@ -1,4 +1,4 @@
-# Route for friends app
+# Route for raidboss app
 apiVersion: cloudstate.io/v1alpha1
 kind: Route
 metadata:
@@ -8,6 +8,6 @@ spec:
   - name: raidboss-routes
     match:
     - uri:
-        prefix: /
+        prefix: /raidboss/
     route:
       service: raidboss-service
