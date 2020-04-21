@@ -134,28 +134,17 @@ OR
 
 ### Creating a boss
 ```
-curl -v -H "Content-Type:application/json"  https://.us-east1.apps.lbcs.dev/state/example-boss-instance-1/raidbosses/create -d '{"boss_instance_id":"example-boss-instance-1", "boss_def_id":"angry-ben-1, "group_id:yoppworks-1"}'
-```
-
-### Adding an item
-```
-curl -v  -H  "Content-Type:application/json"  https://<PROJECT_NAME>.us-east1.apps.lbcs.dev/state/{user_id}/items/add -d '{"user_id":"username", "id":"test", "name":"test", quantity: 1}'
+curl -v -H "Content-Type:application/json"  https://<PROJECT_NAME>/raidbosses/create -d '{"boss_instance_id":"example-boss-instance-1", "boss_def_id":"angry-ben-1, "group_id:yoppworks-1"}'
 ```
 
 ### Attacking a boss
 
- curl -v -H -XPOST "Content-Type:application/json" 0.0.0.0:9000/raidboss/attack -d '{"boss_instance_id":"example-boss-instance-17", "player_id":"justin-91", "damage":100}'
+ curl -vv -H "Content-Type:application/json" 0.0.0.0:9000/raidboss/attack -d '{"boss_instance_id":"example-boss-instance-17", "player_id":"justin-91", "damage":100}'
 
-### Getting the state
+### Getting the current state of the boss
 ```
-curl -v -H 'Content-Type:application/json'  https://<PROJECT_NAME>.us-east1.apps.lbcs.dev/state/{user_id}/items
+curl -v -H 'Content-Type:application/json'  https://<PROJECT_NAME>.us-east1.apps.lbcs.dev/raidboss/view/{instance_id}
 ```
-
-### Removing an item
-```
-curl -v  -XPOST -H  "Content-Type:application/json"  https://<PROJECT_NAME>.us-east1.apps.lbcs.dev/state/{user_id}/items/{id}/remove
-```
-
 
 ## Maintenance notes
 
