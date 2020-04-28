@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "google/api/httpbody.proto";
+
+package cloudstate.samples.shopping.frontend;
+
+message ImgRequest {
+    string img = 1;
+}
+
+message Empty{
+}
+
+service Shop {
+    rpc GetShopPage(Empty) returns (google.api.HttpBody) {
+        option (google.api.http).get = "/pages/index.html";
+    }
+
+    rpc GetBundleJs(Empty) returns (google.api.HttpBody) {
+        option (google.api.http).get = "/pages/build/bundle.js";
+    }
+
+    rpc GetBundleImg(ImgRequest) returns (google.api.HttpBody) {
+        option (google.api.http).get = "/pages/imgs/{img}";
+    }
+}
