@@ -8,6 +8,12 @@ spec:
   - name: raidboss-routes
     match:
     - uri:
-        prefix: /raidboss/
+        prefix: "/org.justinhj.raidbossservice.RaidBossService/"
     route:
       service: raidboss-service
+  - name: "raidboss-routes"
+    match:
+    - uri:
+        prefix: "/"
+    route:
+      service: raidbossservice

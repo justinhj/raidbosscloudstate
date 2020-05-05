@@ -7,8 +7,7 @@ const Stateless = require("cloudstate").Stateless;
 app.use("/site", express.static("public"));
 
 server.listen(3000);
-//console.log("Http Servee running on " + server.address().address + ":" + server.address().port);
-
+console.log("Http Server running on " + server.address().address + ":" + server.address().port);
 
 let indexPage = Buffer.from("");
 fs.readFile('./public/index.html', function(err, data) {
@@ -17,7 +16,7 @@ fs.readFile('./public/index.html', function(err, data) {
 });
 
 function getShopPage(user){
-  console.log("**** showShopPage!!!!! " + process.cwd() , user);  
+  console.log("**** showShopPage!!!!! " + process.cwd() , user);
   return {
     content_type: "text/html",
     data: indexPage.toString("base64")
@@ -32,7 +31,7 @@ fs.readFile('./public/build/bundle.js', function(err, data) {
 });
 
 function getBundleJs(user){
-  console.log("**** bundleJs!!!!! " + process.cwd() , user);  
+  console.log("**** bundleJs!!!!! " + process.cwd() , user);
   return {
     content_type: "text/javascript",
     data: bundleJs.toString("base64")
@@ -40,7 +39,7 @@ function getBundleJs(user){
 }
 
 function getBundleImg(imgRequest){
-    console.log("**** imgRequest!!!!! " + process.cwd() , imgRequest);  
+    console.log("**** imgRequest!!!!! " + process.cwd() , imgRequest);
     var img = fs.readFileSync('./public/imgs/'+imgRequest.img).toString("base64");
     return {
         content_type: "image/png",
@@ -50,7 +49,7 @@ function getBundleImg(imgRequest){
 
 const cloudstate = new Stateless(
     "shop.proto",
-    "cloudstate.samples.shopping.frontend.Shop"    
+    "cloudstate.samples.shopping.frontend.Shop"
 );
 
 cloudstate.commandHandlers = {
@@ -58,7 +57,7 @@ cloudstate.commandHandlers = {
     GetBundleJs: getBundleJs,
     GetBundleImg: getBundleImg
 };
-  
+
 module.exports = cloudstate;
 
 const opts = {};

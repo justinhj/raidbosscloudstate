@@ -39,7 +39,8 @@ const APIRaidBossInstance = entity.lookupType(apipkg + "RaidBossInstance");
  * automatically associated with all events and state for this entity.
  */
 entity.setInitial(instanceId => RaidBossInstance.create({
-    bossInstanceId: instanceId}));
+    bossInstanceId: instanceId,
+    leaderboard: []}));
 
 /*
  * Set a callback to create the behavior given the current state. Since there is no state
@@ -67,6 +68,34 @@ entity.setBehavior(state => {
     }
   };
 });
+
+// Leaderboard management
+function incrementPlayerLeaderboardScore(playerId, score, leaderboard) {
+  if(leaderboard[playerId] === undefined) {
+    leaderboard[playerId] = score;
+  } else {
+    leaderboard[playerId] += score;
+  }
+  return leaderboard;
+}
+
+// Take the top n leaderboard entries
+function takeNLeaderboard(n, leaderboard) {
+  var sortable = [];
+  for (var entry in leaderboard) {
+      sortable.push({playerId: entry, score: leaderboard[entry]});
+  }
+
+  sortable.sort(function(a, b) {
+    if(a.score == b.score) {
+      return a.playerId.localeCompare(b.playerId)
+    } else {
+      return b.score - a.score;
+    }
+  });
+
+  return sortable.slice(0,n);
+}
 
 /**
  * Handler for create command
@@ -141,7 +170,10 @@ function attackRaidBoss(attackReq, state, ctx) {
       killedBy = attackReq.playerId;
     }
 
-    // TODO leaderboard code
+    var newLeaderboard = state.leaderboard.slice();
+    incrementPlayerLeaderboardScore(attackReq.playerId, inflicted, newLeaderboard);
+
+    console.log("newLeaderboard", newLeaderboard);
 
     const raidBossAttacked = RaidBossAttacked.create({
        playerId:  attackReq.playerId,
@@ -155,7 +187,7 @@ function attackRaidBoss(attackReq, state, ctx) {
       bossInstanceId: state.bossInstanceId,
       bossDefId: state.bossDefId,
       health: newHealth,
-      leaderboard: state.leaderboard,
+      leaderboard: takeNLeaderboard(10, newLeaderboard),
       created: state.created,
       updated: Date.now(),
       groupId: state.groupId,
@@ -173,7 +205,19 @@ function attackRaidBoss(attackReq, state, ctx) {
  */
 function viewRaidBoss(request, state) {
   console.log("viewRaidBoss", state);
-  return APIRaidBossInstance.create(state);
+
+  var view = {
+    bossInstanceId: state.bossInstanceId,
+    bossDefId: state.bossDefId,
+    health: state.health,
+    leaderboard: takeNLeaderboard(10, state.leaderboard),
+    created: state.created,
+    updated: state.updated,
+    groupId: state.groupId,
+    killedBy: state.killedBy
+  }
+
+  return APIRaidBossInstance.create(view);
 }
 
 // Event handler for created
@@ -195,6 +239,15 @@ function raidBossAttacked(attackEvent, state) {
 
   state.health = newHealth;
   state.killedBy = killedBy;
+
+  console.log("previous Leaderboard event handler",  state.leaderboard, attackEvent.playerId, attackEvent.damageInflicted);
+
+  var newLeaderboard = state.leaderboard.slice();
+  incrementPlayerLeaderboardScore(attackEvent.playerId, attackEvent.damageInflicted, newLeaderboard);
+
+  state.leaderboard = newLeaderboard;
+
+  console.log("after Leaderboard event handler",  state.leaderboard, state.health);
 
   return state
 }
