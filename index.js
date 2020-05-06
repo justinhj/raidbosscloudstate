@@ -2,6 +2,8 @@
 // RaidBoss by Justin Heyes-Jones
 // @justinhj
 
+const Long = require("long");
+
 const EventSourced = require("cloudstate").EventSourced;
 
 const entity = new EventSourced(
@@ -70,23 +72,33 @@ entity.setBehavior(state => {
 });
 
 // Leaderboard management
-function incrementPlayerLeaderboardScore(playerId, score, leaderboard) {
-  if(leaderboard[playerId] === undefined) {
-    leaderboard[playerId] = score;
-  } else {
-    leaderboard[playerId] += score;
+function incrementPlayerLeaderboardScore(playerId, scoreInc, leaderboard) {
+
+  var updated = false;
+
+  for (var i=0; i<leaderboard.length; i++) {
+    var entry = leaderboard[i];
+    if(entry.playerId.localeCompare(playerId) === 0) {
+      entry.score.add(Long.fromValue(scoreInc));
+      updated = true;
+      console.log("leaderboard entry (updated) ", entry);
+
+      break;
+    }
   }
+
+  if(updated == false) {
+    leaderboard.push({playerId: playerId, score: Long.fromValue(scoreInc)});
+    console.log("leaderboard entry (init) ", leaderboard);
+  }
+
   return leaderboard;
 }
 
 // Take the top n leaderboard entries
 function takeNLeaderboard(n, leaderboard) {
-  var sortable = [];
-  for (var entry in leaderboard) {
-      sortable.push({playerId: entry, score: leaderboard[entry]});
-  }
 
-  sortable.sort(function(a, b) {
+  leaderboard.sort(function(a, b) {
     if(a.score == b.score) {
       return a.playerId.localeCompare(b.playerId)
     } else {
@@ -94,7 +106,11 @@ function takeNLeaderboard(n, leaderboard) {
     }
   });
 
-  return sortable.slice(0,n);
+  var leaderboardOut = leaderboard.slice(0,n);
+  for(i=0; i<leaderboardOut.length; i++) {
+    leaderboardOut[i].score = Long.fromValue(leaderboardOut[i].score);
+  }
+  return leaderboardOut;
 }
 
 /**
@@ -153,14 +169,14 @@ function createRaidBoss(raidBossCreate, state, ctx) {
  * Handler for attack raidboss command
  */
 function attackRaidBoss(attackReq, state, ctx) {
-  var damage = parseInt(attackReq.damage, 10)
+  var damage = Long.fromValue(attackReq.damage);
 
   if (state.created > 0) {
-    var newHealth = parseInt(state.health, 10) - damage;
+    var newHealth = Long.fromValue(state.health).subtract(damage);
     var inflicted = damage;
     console.log("inflicted 1 " + inflicted + " " + typeof inflicted);
     if(newHealth < 0) {
-      inflicted = inflicted + newHealth;
+      inflicted = inflicted.add(newHealth);
       console.log("inflicted 2 " + inflicted + " " + typeof inflicted + " " + newHealth + " " + typeof newHealth);
       newHealth = 0;
     }
@@ -240,15 +256,10 @@ function raidBossAttacked(attackEvent, state) {
   state.health = newHealth;
   state.killedBy = killedBy;
 
-  console.log("previous Leaderboard event handler",  state.leaderboard, attackEvent.playerId, attackEvent.damageInflicted);
-
   var newLeaderboard = state.leaderboard.slice();
   incrementPlayerLeaderboardScore(attackEvent.playerId, attackEvent.damageInflicted, newLeaderboard);
 
   state.leaderboard = newLeaderboard;
-
-  console.log("after Leaderboard event handler",  state.leaderboard, state.health);
-
   return state
 }
 
