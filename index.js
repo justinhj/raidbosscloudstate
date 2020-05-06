@@ -79,17 +79,16 @@ function incrementPlayerLeaderboardScore(playerId, scoreInc, leaderboard) {
   for (var i=0; i<leaderboard.length; i++) {
     var entry = leaderboard[i];
     if(entry.playerId.localeCompare(playerId) === 0) {
-      entry.score.add(Long.fromValue(scoreInc));
+      //console.log("updating player " + playerId + " from " + entry.score + " to " + scoreInc );
+      entry.score = entry.score.add(Long.fromValue(scoreInc));
       updated = true;
-      console.log("leaderboard entry (updated) ", entry);
-
       break;
     }
   }
 
   if(updated == false) {
+    //console.log("init player " + playerId + " to " + scoreInc );
     leaderboard.push({playerId: playerId, score: Long.fromValue(scoreInc)});
-    console.log("leaderboard entry (init) ", leaderboard);
   }
 
   return leaderboard;
@@ -120,9 +119,6 @@ function createRaidBoss(raidBossCreate, state, ctx) {
   console.log("create raidboss", JSON.stringify(raidBossCreate), JSON.stringify(state));
   // Validation: check if already created
   if (state.created > 0) {
-    var message = "createRaidBoss already created with id " + raidBossCreate.bossInstanceId
-      + " and created " + state.created ;
-    console.log(message);
     return APIRaidBossInstance.create({
       bossInstanceId: state.bossInstanceId,
       bossDefId: state.bossDefId,
@@ -146,7 +142,7 @@ function createRaidBoss(raidBossCreate, state, ctx) {
       }
     });
     // Emit the event.
-    console.log("createRaidBoss::emit event", raidBossCreated);
+    //console.log("createRaidBoss::emit event", raidBossCreated);
     ctx.emit(raidBossCreated);
 
     var apiResult = APIRaidBossInstance.create({
@@ -159,7 +155,7 @@ function createRaidBoss(raidBossCreate, state, ctx) {
         groupId: raidBossCreated.instance.groupId
       });
 
-    console.log("createRaidBoss::responding with", apiResult);
+    //console.log("createRaidBoss::responding with", apiResult);
 
     return apiResult;
   }
@@ -174,10 +170,8 @@ function attackRaidBoss(attackReq, state, ctx) {
   if (state.created > 0) {
     var newHealth = Long.fromValue(state.health).subtract(damage);
     var inflicted = damage;
-    console.log("inflicted 1 " + inflicted + " " + typeof inflicted);
     if(newHealth < 0) {
       inflicted = inflicted.add(newHealth);
-      console.log("inflicted 2 " + inflicted + " " + typeof inflicted + " " + newHealth + " " + typeof newHealth);
       newHealth = 0;
     }
 
@@ -189,14 +183,10 @@ function attackRaidBoss(attackReq, state, ctx) {
     var newLeaderboard = state.leaderboard.slice();
     incrementPlayerLeaderboardScore(attackReq.playerId, inflicted, newLeaderboard);
 
-    console.log("newLeaderboard", newLeaderboard);
-
     const raidBossAttacked = RaidBossAttacked.create({
        playerId:  attackReq.playerId,
        damageInflicted: inflicted
     });
-
-    console.log("raidBossAttacked::emit event", raidBossAttacked);
     ctx.emit(raidBossAttacked)
 
     return APIRaidBossInstance.create({
@@ -220,8 +210,6 @@ function attackRaidBoss(attackReq, state, ctx) {
  * Handler for view raidboss command
  */
 function viewRaidBoss(request, state) {
-  console.log("viewRaidBoss", state);
-
   var view = {
     bossInstanceId: state.bossInstanceId,
     bossDefId: state.bossDefId,
@@ -266,5 +254,3 @@ function raidBossAttacked(attackEvent, state) {
 // Export the entity
 module.exports = entity;
 entity.start();
-
-
