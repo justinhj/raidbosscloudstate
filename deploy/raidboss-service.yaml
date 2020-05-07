@@ -13,3 +13,6 @@ spec:
   containers:
     - image: justinhj/raidboss-service:latest
       name: raidboss-service
+      env:
+        - name: DEBUG
+          value: cloudstate*

@@ -149,7 +149,7 @@ function createRaidBoss(raidBossCreate, state, ctx) {
         bossInstanceId: raidBossCreated.instance.bossInstanceId,
         bossDefId: raidBossCreated.instance.bossInstanceId,
         health: raidBossCreated.instance.health,
-        leaderboard: raidBossCreated.instance.leaderboard,
+        leaderboard: takeNLeaderboard(10, raidBossCreated.instance.leaderboard),
         created: raidBossCreated.instance.created,
         updated: raidBossCreated.instance.updated,
         groupId: raidBossCreated.instance.groupId
