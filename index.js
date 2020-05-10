@@ -42,7 +42,8 @@ const APIRaidBossInstance = entity.lookupType(apipkg + "RaidBossInstance");
  */
 entity.setInitial(instanceId => RaidBossInstance.create({
     bossInstanceId: instanceId,
-    leaderboard: []}));
+    leaderboard: [],
+    killedBy: ""}));
 
 /*
  * Set a callback to create the behavior given the current state. Since there is no state
@@ -126,7 +127,8 @@ function createRaidBoss(raidBossCreate, state, ctx) {
       leaderboard: state.leaderboard,
       created: state.created,
       updated: state.updated,
-      groupId: state.groupId
+      groupId: state.groupId,
+      killedBy: state.killedBy
     });
   } else {
     // Create the event.
@@ -147,7 +149,7 @@ function createRaidBoss(raidBossCreate, state, ctx) {
 
     var apiResult = APIRaidBossInstance.create({
         bossInstanceId: raidBossCreated.instance.bossInstanceId,
-        bossDefId: raidBossCreated.instance.bossInstanceId,
+        bossDefId: raidBossCreated.instance.bossDefId,
         health: raidBossCreated.instance.health,
         leaderboard: takeNLeaderboard(10, raidBossCreated.instance.leaderboard),
         created: raidBossCreated.instance.created,
