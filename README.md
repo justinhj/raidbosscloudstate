@@ -1,35 +1,39 @@
 # Raidboss cloudstate
-A massively multiplayer raid boss implementation (A shared monster that thousands of players can attack. Includes leaderboards to track damager).
+
+## Summary
+
+This is an implementaion of a feature common in multiplayer games, the Raid Boss. Designs vary but in this case what we mean is some entity in a massively multiplayer video game (could be a PC, Console or Mobile game), that belongs to a group of players (an alliance or guild). A group summons a boss, usually with some form of in-game resource and then compete with each other to destroy it. Prizes are usually awarded for the players that inflict the most damage, so we track a leaderboard of damage inflicted.
+
+Whilst this is a fully working backend feature, it is not a complete game. This system would be accessed by other game systems that handle validation that groups can create monster of certain types and at specific times. It would validate that players have the skills and resources to inflict the damage sent.
+
+Given that a game may have hundreds of groups and millions of players online at any time, it is important that game features can remain responsive under heavy load. The first time I encountered this kind of game feature it was implemented with a combination of PHP, MySQL and used Memcached to synchronize the attacks. Unfortunately with this architecture the system was not responsive under load, since as multiple players attacked the same boss at once there would be a lot of contention to access the same resources.
+
+A solution was built that used Akka cluster, Akka sharded actors and event sourcing. Under this new model the system was now easy to scale under load just by adding new servers. It was more responsive because active bosses are in memory and we switched to Cassandra which can also be scaled to handle much higher numbers of writes. While this solution works very well it required a dedicated team of Scala programmers familiar with Akka sharding.
+
+With Lightbend's Cloudstate, the power of event sourcing and sharding actors now requires much less specialist knowledge and can be implemented in various languages. This implementation uses Node.js and Javascript to implement the raidboss feature. In the background Cloudstate handles all of the database interaction and event sourcing logic.
+
+This service can be deployed using Docker or Kubernetes or you can deploy it to Lightbend's commercial hosting for Cloudstate services. There is an accompanying frontend to interact with this project here:
+
+https://github.com/justinhj/cloudstate-raidboss-frontend
+
+For load testing there is a sample project for load testing your raid boss service using Gatling here:
+
+https://github.com/justinhj/gatling-raidboss-cloudstate
 
 ## Layout
-* `myservice.proto` - This is the gRPC interface that is exposed to the rest of the world. The user function doesn't implement this directly, it passes it to the Akka backend, that implements it, and then proxies all requests to the user function through an event sourcing specific protocol. Note the use of the `cloudstate.entity_key` field option extension, this is used to indicate which field(s) form the entity key, which the Akka backend will use to identify entities and shard them.
+* `raidbossservice.proto` - This is the gRPC interface that is exposed to the rest of the world. The user function doesn't implement this directly, it passes it to the Akka backend, that implements it, and then proxies all requests to the user function through an event sourcing specific protocol. Note the use of the `cloudstate.entity_key` field option extension, this is used to indicate which field(s) form the entity key, which the Akka backend will use to identify entities and shard them.
 * `domain.proto` - These are the protobuf message definitions for the domain events and state. They are used to serialize and deserialize events stored in the journal, as well as being used to store the current state which gets serialized and deserialized as snapshots when snapshotting is used.
-* `myservice.js` - This is the JavaScript code for implementing the service entity user function. It defines handlers for events and commands. It uses the cloudstate-event-sourcing Node.js module to actually implement the event sourcing protocol.
+* `index.js` - This is the JavaScript code for implementing the service entity user function. It defines handlers for events and commands. It uses the cloudstate-event-sourcing Node.js module to actually implement the event sourcing protocol.
 * `deploy` directory that contains the deployment yaml files.
 
 ### Storage Setup
-* Modify `deploy/postgres-store.yaml`
-    * Change the `name` to be unique amongst your services.
-    * eg: `myservice-postgres`
-* Modify `my-service.yaml` to match
-    * Change `spec|storeConfig|statefulStore|name` to match the name used above.
 
-## Your Code
-You want to make changes to the following files:
-* Edit both the `domain.proto` and the `myservice.proto`, renaming those files as you see fit.
-* Once your model, command and events are defined as you like, we need to know how to implement the service.
-* Edit the `index.js` file, again renaming the file and contents to your liking.
-   * Follow the comments in these files as a guide to help you edit.
+`kubectl apply -f deploy/postgres-store.yaml`
 
 ## Building
 ```
 npm install
-npm run prestart
-```
-
-This will create `user-function.desc` which describes your stateful function to Cloudstate
-```
-docker build . -t <my-registry>/my-service:latest
+DOCKER_PUBLISH_TO=[YOUR CONTAINER REGISTRY] npm run dockerbuildpush
 ```
 
 Push the docker image to the registry

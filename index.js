@@ -238,17 +238,16 @@ function raidBossAttacked(attackEvent, state) {
 
   var newHealth = state.health - attackEvent.damageInflicted;
 
-  var killedBy = "";
   if(state.health > 0 && newHealth == 0) {
-    killedBy = attackEvent.playerId;
+    state.killedBy = attackEvent.playerId;
   }
 
   state.health = newHealth;
-  state.killedBy = killedBy;
 
   var newLeaderboard = state.leaderboard.slice();
   incrementPlayerLeaderboardScore(attackEvent.playerId, attackEvent.damageInflicted, newLeaderboard);
 
+  state.updated = Date.now();
   state.leaderboard = newLeaderboard;
   return state
 }
