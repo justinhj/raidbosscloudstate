@@ -1,7 +1,7 @@
 // This is the public API offered by the raid boss entity
 syntax = "proto3";
 
-//import "google/protobuf/empty.proto";
+import "google/protobuf/empty.proto";
 import "cloudstate/entity_key.proto";
 import "cloudstate/eventing.proto";
 import "google/api/annotations.proto";
@@ -56,7 +56,7 @@ message RaidBossInstance {
 service RaidBossService {
 
   // Create (or summon) a boss
-  rpc CreateRaidBoss(RaidBossCreate) returns (RaidBossInstance) {
+  rpc CreateRaidBoss(RaidBossCreate) returns (google.protobuf.Empty) {
     // option (google.api.http) specifies that this method is a gRPC HTTP mapping annotation
     // for more info see: https://cloud.google.com/endpoints/docs/grpc/transcoding
     option (google.api.http) = {
@@ -75,7 +75,7 @@ service RaidBossService {
   }
 
   // Call attack a boss and return the current state
-  rpc AttackRaidBoss(RaidBossAttack) returns (RaidBossInstance) {
+  rpc AttackRaidBoss(RaidBossAttack) returns (google.protobuf.Empty) {
     // option (google.api.http) specifies that this method is a gRPC HTTP mapping annotation
     // for more info see: https://cloud.google.com/endpoints/docs/grpc/transcoding
     option (google.api.http) = {

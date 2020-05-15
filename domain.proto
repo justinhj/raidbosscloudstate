@@ -30,5 +30,5 @@ message RaidBossCreated {
 
 message RaidBossAttacked {
   string player_id = 1 ;
-  int64 damage_inflicted = 2 ;
+  int64 damage = 2 ;
 }
